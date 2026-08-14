@@ -15,9 +15,6 @@ export function SoltechLogo({ className = "h-20 w-20" }: { className?: string })
 export function CredentialsLine({ className = "" }: { className?: string }) {
   return (
     <p className={`text-xs font-medium tracking-wide text-muted-foreground ${className}`}>
-      <span className="text-foreground">8+ Years</span> of Experience
-      <span className="mx-2 text-accent">•</span>
-      <span className="text-foreground">1,800+</span> Solar Sites
     </p>
   );
 }
