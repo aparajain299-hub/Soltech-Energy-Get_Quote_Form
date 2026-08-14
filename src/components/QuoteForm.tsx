@@ -15,7 +15,6 @@ type Errors = {
 
 type QuoteFormProps = {
   onBack?: () => void;
-  onClose?: () => void;
 };
 
 const fieldClass =
@@ -23,7 +22,6 @@ const fieldClass =
 
 export function QuoteForm({
   onBack,
-  onClose,
 }: QuoteFormProps) {
   const [fullName, setFullName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -151,16 +149,14 @@ export function QuoteForm({
           <div />
         )}
 
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-2xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
-          >
-            ×
-          </button>
-        )}
+<button
+  type="button"
+  onClick={() => window.history.back()}
+  aria-label="Close"
+  className="flex h-10 w-10 items-center justify-center rounded-full text-2xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
+>
+  ×
+</button>
       </div>
 
       <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
