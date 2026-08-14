@@ -62,7 +62,9 @@ export function QuoteForm() {
     };
   };
 
-const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+const handleSubmit = async (
+  event: React.FormEvent<HTMLFormElement>
+) => {
   event.preventDefault();
 
   if (submitting) return;
@@ -75,55 +77,53 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
   setErrors({});
 
   try {
-    const payload = {
-      full_name: fullName.trim(),
-      whatsapp_number: digits,
-      monthly_electricity_bill: bill,
-      pin_code: pinCode.trim(),
-    };
+    console.log("SOLTECH: submitting quote");
 
-    console.log("SOLTECH: submitting payload", payload);
-
-const { data, error } = await supabase.rpc(
-  "submit_quote_enquiry",
-  {
-    p_full_name: fullName.trim(),
-    p_whatsapp_number: digits,
-    p_monthly_electricity_bill: bill,
-    p_pin_code: pinCode.trim(),
-  }
-);
+    const { data, error } = await supabase.rpc(
+      "submit_quote_enquiry",
+      {
+        p_full_name: fullName.trim(),
+        p_whatsapp_number: digits,
+        p_monthly_electricity_bill: bill,
+        p_pin_code: pinCode.trim(),
+      }
+    );
 
     if (error) {
-      console.error("SOLTECH SUPABASE ERROR", {
+      console.error("SOLTECH SUPABASE RPC ERROR:", {
+        code: error.code,
         message: error.message,
         details: error.details,
         hint: error.hint,
-        code: error.code,
       });
 
       setErrors({
-        form: `Supabase error ${error.code}: ${error.message}${
-          error.details ? ` — ${error.details}` : ""
-        }`,
+        form: `Unable to submit: ${error.message}`,
       });
 
       return;
     }
 
-    console.log("SOLTECH: enquiry saved successfully", data);
+    console.log(
+      "SOLTECH: enquiry successfully saved:",
+      data
+    );
 
     const firstName =
-      fullName.trim().split(/\s+/)[0] || fullName.trim();
+      fullName.trim().split(/\s+/)[0] ||
+      fullName.trim();
 
     setSubmittedName(firstName);
   } catch (error) {
-    console.error("SOLTECH UNEXPECTED ERROR", error);
+    console.error(
+      "SOLTECH UNEXPECTED SUBMISSION ERROR:",
+      error
+    );
 
     setErrors({
       form:
         error instanceof Error
-          ? `Submission error: ${error.message}`
+          ? error.message
           : "Something went wrong while submitting your enquiry.",
     });
   } finally {
