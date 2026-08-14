@@ -84,11 +84,15 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 
     console.log("SOLTECH: submitting payload", payload);
 
-    const { data, error } = await supabase
-      .from("quote_enquiries")
-      .insert(payload)
-      .select()
-      .single();
+const { data, error } = await supabase.rpc(
+  "submit_quote_enquiry",
+  {
+    p_full_name: fullName.trim(),
+    p_whatsapp_number: digits,
+    p_monthly_electricity_bill: bill,
+    p_pin_code: pinCode.trim(),
+  }
+);
 
     if (error) {
       console.error("SOLTECH SUPABASE ERROR", {
