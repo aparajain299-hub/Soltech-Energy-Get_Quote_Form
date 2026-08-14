@@ -3,11 +3,11 @@ import logoAsset from "@/assets/soltech-logo.png.asset.json";
 export function SoltechLogo({ className = "h-20 w-20" }: { className?: string }) {
   return (
     <img
-      src={logoAsset.url}
+      src="/soltech-logo.png"
       alt="Soltech Energy logo"
       width={512}
       height={512}
-      className={`${className} shrink-0 rounded-full object-contain`}
+      className={`${className} shrink-0 object-contain`}
     />
   );
 }
