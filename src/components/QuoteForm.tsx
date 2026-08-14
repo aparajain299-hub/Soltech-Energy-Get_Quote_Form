@@ -25,42 +25,87 @@ export function QuoteForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submittedName, setSubmittedName] = useState<string | null>(null);
 
-  if (submittedName) return <SuccessScreen name={submittedName} />;
+  if (submittedName) {
+    return <SuccessScreen name={submittedName} />;
+  }
 
   const validate = () => {
     const next: Errors = {};
-    if (!fullName.trim()) next.fullName = "Please enter your name.";
-    const digits = whatsapp.replace(/\D/g, "").replace(/^(0|91)(?=\d{10}$)/, "");
-    if (!whatsapp.trim()) next.whatsapp = "Please enter your WhatsApp number.";
-    else if (!/^[6-9]\d{9}$/.test(digits))
+
+    if (!fullName.trim()) {
+      next.fullName = "Please enter your name.";
+    }
+
+    const digits = whatsapp
+      .replace(/\D/g, "")
+      .replace(/^(0|91)(?=\d{10}$)/, "");
+
+    if (!whatsapp.trim()) {
+      next.whatsapp = "Please enter your WhatsApp number.";
+    } else if (!/^[6-9]\d{9}$/.test(digits)) {
       next.whatsapp = "Please enter a valid 10-digit mobile number.";
-    if (!bill) next.bill = "Please select your monthly electricity bill range.";
-    if (!/^[1-9]\d{5}$/.test(pinCode.trim()))
+    }
+
+    if (!bill) {
+      next.bill = "Please select your monthly electricity bill range.";
+    }
+
+    if (!/^[1-9]\d{5}$/.test(pinCode.trim())) {
       next.pinCode = "Please enter a valid 6-digit PIN code.";
+    }
+
     setErrors(next);
-    return { ok: Object.keys(next).length === 0, digits };
+
+    return {
+      ok: Object.keys(next).length === 0,
+      digits,
+    };
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
     if (submitting) return;
+
     const { ok, digits } = validate();
+
     if (!ok) return;
 
     setSubmitting(true);
-    const { error } = await supabase.from("quote_enquiries").insert({
-      full_name: fullName.trim(),
-      whatsapp_number: digits,
-      monthly_electricity_bill: bill,
-      pin_code: pinCode.trim(),
-    });
-    setSubmitting(false);
+    setErrors({});
 
-    if (error) {
-      setErrors({ form: "Something went wrong. Please try again in a moment." });
-      return;
+    try {
+      const { error } = await supabase
+        .from("quote_enquiries")
+        .insert({
+          full_name: fullName.trim(),
+          whatsapp_number: digits,
+          monthly_electricity_bill: bill,
+          pin_code: pinCode.trim(),
+        });
+
+      if (error) {
+        console.error("Supabase submission error:", error);
+
+        setErrors({
+          form: "We couldn't submit your enquiry. Please try again.",
+        });
+
+        return;
+      }
+
+      const firstName = fullName.trim().split(/\s+/)[0] || fullName.trim();
+
+      setSubmittedName(firstName);
+    } catch (error) {
+      console.error("Unexpected submission error:", error);
+
+      setErrors({
+        form: "Something went wrong. Please try again.",
+      });
+    } finally {
+      setSubmitting(false);
     }
-    setSubmittedName(fullName.trim().split(" ")[0] ?? fullName.trim());
   };
 
   return (
@@ -70,9 +115,13 @@ export function QuoteForm() {
 
         <form onSubmit={handleSubmit} noValidate className="mt-7 space-y-5">
           <div>
-            <label htmlFor="fullName" className="text-sm font-semibold text-foreground">
+            <label
+              htmlFor="fullName"
+              className="text-sm font-semibold text-foreground"
+            >
               Full Name
             </label>
+
             <input
               id="fullName"
               name="fullName"
@@ -82,20 +131,30 @@ export function QuoteForm() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               aria-invalid={!!errors.fullName}
-              aria-describedby={errors.fullName ? "fullName-error" : undefined}
+              aria-describedby={
+                errors.fullName ? "fullName-error" : undefined
+              }
               className={fieldClass}
             />
+
             {errors.fullName && (
-              <p id="fullName-error" className="mt-1.5 text-sm text-destructive">
+              <p
+                id="fullName-error"
+                className="mt-1.5 text-sm text-destructive"
+              >
                 {errors.fullName}
               </p>
             )}
           </div>
 
           <div>
-            <label htmlFor="whatsapp" className="text-sm font-semibold text-foreground">
+            <label
+              htmlFor="whatsapp"
+              className="text-sm font-semibold text-foreground"
+            >
               WhatsApp Number
             </label>
+
             <input
               id="whatsapp"
               name="whatsapp"
@@ -107,11 +166,17 @@ export function QuoteForm() {
               value={whatsapp}
               onChange={(e) => setWhatsapp(e.target.value)}
               aria-invalid={!!errors.whatsapp}
-              aria-describedby={errors.whatsapp ? "whatsapp-error" : undefined}
+              aria-describedby={
+                errors.whatsapp ? "whatsapp-error" : undefined
+              }
               className={fieldClass}
             />
+
             {errors.whatsapp && (
-              <p id="whatsapp-error" className="mt-1.5 text-sm text-destructive">
+              <p
+                id="whatsapp-error"
+                className="mt-1.5 text-sm text-destructive"
+              >
                 {errors.whatsapp}
               </p>
             )}
@@ -120,19 +185,29 @@ export function QuoteForm() {
           <div>
             <BillSelect
               value={bill}
-              onChange={(v: BillOption) => {
-                setBill(v);
+              onChange={(value: BillOption) => {
+                setBill(value);
+
                 setErrors(({ bill: _bill, ...rest }) => rest);
               }}
               invalid={!!errors.bill}
             />
-            {errors.bill && <p className="mt-1.5 text-sm text-destructive">{errors.bill}</p>}
+
+            {errors.bill && (
+              <p className="mt-1.5 text-sm text-destructive">
+                {errors.bill}
+              </p>
+            )}
           </div>
 
           <div>
-            <label htmlFor="pinCode" className="text-sm font-semibold text-foreground">
+            <label
+              htmlFor="pinCode"
+              className="text-sm font-semibold text-foreground"
+            >
               PIN Code
             </label>
+
             <input
               id="pinCode"
               name="pinCode"
@@ -142,20 +217,31 @@ export function QuoteForm() {
               maxLength={6}
               placeholder="Enter your PIN code"
               value={pinCode}
-              onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ""))}
+              onChange={(e) =>
+                setPinCode(e.target.value.replace(/\D/g, ""))
+              }
               aria-invalid={!!errors.pinCode}
-              aria-describedby={errors.pinCode ? "pinCode-error" : undefined}
+              aria-describedby={
+                errors.pinCode ? "pinCode-error" : undefined
+              }
               className={fieldClass}
             />
+
             {errors.pinCode && (
-              <p id="pinCode-error" className="mt-1.5 text-sm text-destructive">
+              <p
+                id="pinCode-error"
+                className="mt-1.5 text-sm text-destructive"
+              >
                 {errors.pinCode}
               </p>
             )}
           </div>
 
           {errors.form && (
-            <p role="alert" className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <p
+              role="alert"
+              className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            >
               {errors.form}
             </p>
           )}
