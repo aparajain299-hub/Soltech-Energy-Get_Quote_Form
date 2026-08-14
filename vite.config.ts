@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 
 export default defineConfig({
-  base: '/Soltech-Energy-Get_Quote_Form/', // <--- MUST MATCH YOUR REPO NAME
+  base: '/',
   plugins: [react()],
   resolve: {
     alias: {
