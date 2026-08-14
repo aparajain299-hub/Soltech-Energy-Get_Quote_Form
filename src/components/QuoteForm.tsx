@@ -13,16 +13,10 @@ type Errors = {
   form?: string;
 };
 
-type QuoteFormProps = {
-  onBack?: () => void;
-};
-
 const fieldClass =
   "mt-2 h-12 w-full rounded-xl border border-input bg-card px-4 text-base text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/40";
 
-export function QuoteForm({
-  onBack,
-}: QuoteFormProps) {
+export function QuoteForm() {
   const [fullName, setFullName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [bill, setBill] = useState("");
@@ -144,31 +138,7 @@ if (submittedName) {
   };
 
   return (
-    <div className="w-full max-w-md">
-
-      {/* Back and Close buttons */}
-      <div className="mb-4 flex items-center justify-between">
-        {onBack ? (
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-          >
-            ← Back
-          </button>
-        ) : (
-          <div />
-        )}
-
-<button
-  type="button"
-  onClick={() => window.history.back()}
-  aria-label="Close"
-  className="flex h-10 w-10 items-center justify-center rounded-full text-2xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
->
-  ×
-</button>
-      </div>
+      <div className="w-full max-w-md">
 
       <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
         <QuoteHeader />
