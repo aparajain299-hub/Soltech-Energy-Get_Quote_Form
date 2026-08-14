@@ -6,7 +6,7 @@ export function SuccessScreen({ name }: { name: string }) {
       <div className="flex flex-col items-center rounded-3xl border border-border bg-card p-8 text-center shadow-card">
         <SoltechLogo className="h-16 w-16" />
         <h1 className="mt-5 text-2xl font-bold tracking-tight text-primary">
-          Thank you, {name}! ☀️
+          Thank you, {name}!
         </h1>
         <div className="mt-2 h-1 w-12 rounded-full bg-accent" aria-hidden="true" />
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
