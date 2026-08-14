@@ -46,7 +46,6 @@ if (submittedName) {
     />
   );
 }
-
   const validate = () => {
     const next: Errors = {};
 
