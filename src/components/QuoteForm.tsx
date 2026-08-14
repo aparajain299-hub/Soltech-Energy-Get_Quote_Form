@@ -31,9 +31,21 @@ export function QuoteForm({
   const [submitting, setSubmitting] = useState(false);
   const [submittedName, setSubmittedName] = useState<string | null>(null);
 
-  if (submittedName) {
-    return <SuccessScreen name={submittedName} />;
-  }
+if (submittedName) {
+  return (
+    <SuccessScreen
+      name={submittedName}
+      onSubmitAgain={() => {
+        setSubmittedName(null);
+        setFullName("");
+        setWhatsapp("");
+        setBill("");
+        setPinCode("");
+        setErrors({});
+      }}
+    />
+  );
+}
 
   const validate = () => {
     const next: Errors = {};
