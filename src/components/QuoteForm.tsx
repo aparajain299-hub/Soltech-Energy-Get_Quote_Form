@@ -13,10 +13,18 @@ type Errors = {
   form?: string;
 };
 
+type QuoteFormProps = {
+  onBack?: () => void;
+  onClose?: () => void;
+};
+
 const fieldClass =
   "mt-2 h-12 w-full rounded-xl border border-input bg-card px-4 text-base text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/40";
 
-export function QuoteForm() {
+export function QuoteForm({
+  onBack,
+  onClose,
+}: QuoteFormProps) {
   const [fullName, setFullName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [bill, setBill] = useState("");
@@ -62,81 +70,107 @@ export function QuoteForm() {
     };
   };
 
-const handleSubmit = async (
-  event: React.FormEvent<HTMLFormElement>
-) => {
-  event.preventDefault();
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
 
-  if (submitting) return;
+    if (submitting) return;
 
-  const { ok, digits } = validate();
+    const { ok, digits } = validate();
 
-  if (!ok) return;
+    if (!ok) return;
 
-  setSubmitting(true);
-  setErrors({});
+    setSubmitting(true);
+    setErrors({});
 
-  try {
-    console.log("SOLTECH: submitting quote");
+    try {
+      const { data, error } = await supabase.rpc(
+        "submit_quote_enquiry",
+        {
+          p_full_name: fullName.trim(),
+          p_whatsapp_number: digits,
+          p_monthly_electricity_bill: bill,
+          p_pin_code: pinCode.trim(),
+        }
+      );
 
-    const { data, error } = await supabase.rpc(
-      "submit_quote_enquiry",
-      {
-        p_full_name: fullName.trim(),
-        p_whatsapp_number: digits,
-        p_monthly_electricity_bill: bill,
-        p_pin_code: pinCode.trim(),
+      if (error) {
+        console.error("SOLTECH SUPABASE RPC ERROR:", {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+        });
+
+        setErrors({
+          form: "We couldn't submit your enquiry. Please try again.",
+        });
+
+        return;
       }
-    );
 
-    if (error) {
-      console.error("SOLTECH SUPABASE RPC ERROR:", {
-        code: error.code,
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-      });
+      console.log(
+        "SOLTECH: enquiry successfully saved:",
+        data
+      );
+
+      const firstName =
+        fullName.trim().split(/\s+/)[0] ||
+        fullName.trim();
+
+      setSubmittedName(firstName);
+    } catch (error) {
+      console.error(
+        "SOLTECH UNEXPECTED SUBMISSION ERROR:",
+        error
+      );
 
       setErrors({
-        form: `Unable to submit: ${error.message}`,
+        form: "We couldn't submit your enquiry. Please try again.",
       });
-
-      return;
+    } finally {
+      setSubmitting(false);
     }
-
-    console.log(
-      "SOLTECH: enquiry successfully saved:",
-      data
-    );
-
-    const firstName =
-      fullName.trim().split(/\s+/)[0] ||
-      fullName.trim();
-
-    setSubmittedName(firstName);
-  } catch (error) {
-    console.error(
-      "SOLTECH UNEXPECTED SUBMISSION ERROR:",
-      error
-    );
-
-    setErrors({
-      form:
-        error instanceof Error
-          ? error.message
-          : "Something went wrong while submitting your enquiry.",
-    });
-  } finally {
-    setSubmitting(false);
-  }
-};
+  };
 
   return (
     <div className="w-full max-w-md">
+
+      {/* Back and Close buttons */}
+      <div className="mb-4 flex items-center justify-between">
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            ← Back
+          </button>
+        ) : (
+          <div />
+        )}
+
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-2xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
       <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
         <QuoteHeader />
 
-        <form onSubmit={handleSubmit} noValidate className="mt-7 space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          className="mt-7 space-y-5"
+        >
           <div>
             <label
               htmlFor="fullName"
@@ -155,7 +189,9 @@ const handleSubmit = async (
               onChange={(e) => setFullName(e.target.value)}
               aria-invalid={!!errors.fullName}
               aria-describedby={
-                errors.fullName ? "fullName-error" : undefined
+                errors.fullName
+                  ? "fullName-error"
+                  : undefined
               }
               className={fieldClass}
             />
@@ -190,7 +226,9 @@ const handleSubmit = async (
               onChange={(e) => setWhatsapp(e.target.value)}
               aria-invalid={!!errors.whatsapp}
               aria-describedby={
-                errors.whatsapp ? "whatsapp-error" : undefined
+                errors.whatsapp
+                  ? "whatsapp-error"
+                  : undefined
               }
               className={fieldClass}
             />
@@ -211,7 +249,9 @@ const handleSubmit = async (
               onChange={(value: BillOption) => {
                 setBill(value);
 
-                setErrors(({ bill: _bill, ...rest }) => rest);
+                setErrors(
+                  ({ bill: _bill, ...rest }) => rest
+                );
               }}
               invalid={!!errors.bill}
             />
@@ -241,11 +281,15 @@ const handleSubmit = async (
               placeholder="Enter your PIN code"
               value={pinCode}
               onChange={(e) =>
-                setPinCode(e.target.value.replace(/\D/g, ""))
+                setPinCode(
+                  e.target.value.replace(/\D/g, "")
+                )
               }
               aria-invalid={!!errors.pinCode}
               aria-describedby={
-                errors.pinCode ? "pinCode-error" : undefined
+                errors.pinCode
+                  ? "pinCode-error"
+                  : undefined
               }
               className={fieldClass}
             />
@@ -274,7 +318,9 @@ const handleSubmit = async (
             disabled={submitting}
             className="flex min-h-14 w-full items-center justify-center rounded-xl bg-primary text-base font-semibold text-primary-foreground shadow-soft transition-all hover:bg-primary-dark active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-70"
           >
-            {submitting ? "Submitting..." : "Get My Free Quote"}
+            {submitting
+              ? "Submitting..."
+              : "Get My Free Quote"}
           </button>
         </form>
       </div>
