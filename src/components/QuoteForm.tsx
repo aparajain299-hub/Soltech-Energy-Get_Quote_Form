@@ -62,48 +62,70 @@ export function QuoteForm() {
     };
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
 
-    if (submitting) return;
+  if (submitting) return;
 
-    const { ok, digits } = validate();
+  const { ok, digits } = validate();
 
-    if (!ok) return;
+  if (!ok) return;
 
-    setSubmitting(true);
-    setErrors({});
+  setSubmitting(true);
+  setErrors({});
 
-    try {
-      const { error } = await supabase
-        .from("quote_enquiries")
-        .insert({
-          full_name: fullName.trim(),
-          whatsapp_number: digits,
-          monthly_electricity_bill: bill,
-          pin_code: pinCode.trim(),
-        });
+  try {
+    const payload = {
+      full_name: fullName.trim(),
+      whatsapp_number: digits,
+      monthly_electricity_bill: bill,
+      pin_code: pinCode.trim(),
+    };
 
-      if (error) {
-        console.error("SUPABASE ERROR:", error);
-        setErrors({ form: `Supabase error: ${error.message}`,
+    console.log("SOLTECH: submitting payload", payload);
+
+    const { data, error } = await supabase
+      .from("quote_enquiries")
+      .insert(payload)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("SOLTECH SUPABASE ERROR", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
       });
-        return;
-      }
-
-      const firstName = fullName.trim().split(/\s+/)[0] || fullName.trim();
-
-      setSubmittedName(firstName);
-    } catch (error) {
-      console.error("Unexpected submission error:", error);
 
       setErrors({
-        form: "Something went wrong. Please try again.",
+        form: `Supabase error ${error.code}: ${error.message}${
+          error.details ? ` — ${error.details}` : ""
+        }`,
       });
-    } finally {
-      setSubmitting(false);
+
+      return;
     }
-  };
+
+    console.log("SOLTECH: enquiry saved successfully", data);
+
+    const firstName =
+      fullName.trim().split(/\s+/)[0] || fullName.trim();
+
+    setSubmittedName(firstName);
+  } catch (error) {
+    console.error("SOLTECH UNEXPECTED ERROR", error);
+
+    setErrors({
+      form:
+        error instanceof Error
+          ? `Submission error: ${error.message}`
+          : "Something went wrong while submitting your enquiry.",
+    });
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <div className="w-full max-w-md">
