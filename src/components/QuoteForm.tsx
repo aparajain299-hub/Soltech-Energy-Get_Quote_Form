@@ -85,12 +85,9 @@ export function QuoteForm() {
         });
 
       if (error) {
-        console.error("Supabase submission error:", error);
-
-        setErrors({
-          form: "We couldn't submit your enquiry. Please try again.",
-        });
-
+        console.error("SUPABASE ERROR:", error);
+        setErrors({ form: `Supabase error: ${error.message}`,
+      });
         return;
       }
 
