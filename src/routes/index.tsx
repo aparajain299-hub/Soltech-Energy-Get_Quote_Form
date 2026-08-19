@@ -13,7 +13,7 @@ import {
   Sun,
   Zap,
 } from "lucide-react";
-import logo from "public/soltech-logo.png";
+import logo from "/soltech-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
