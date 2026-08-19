@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import {
   ArrowLeft,
@@ -99,21 +100,54 @@ function QuotePage() {
     setStep((s) => Math.min(TOTAL_STEPS, s + 1));
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (step < TOTAL_STEPS) {
-      goNext();
+async function handleSubmit(e: React.FormEvent) {
+  e.preventDefault();
+
+  if (step < TOTAL_STEPS) {
+    goNext();
+    return;
+  }
+
+  const next = validateStep(TOTAL_STEPS);
+  setErrors(next);
+
+  if (Object.keys(next).length > 0) return;
+
+  setSubmitting(true);
+  setErrors({});
+
+  try {
+    const digits = phone.replace(/\D/g, "");
+
+    const { data, error } = await supabase.rpc(
+      "submit_quote_enquiry",
+      {
+        p_full_name: name.trim(),
+        p_whatsapp_number: digits,
+        p_monthly_electricity_bill: bill,
+        p_pin_code: pin.trim(),
+      }
+    );
+
+    if (error) {
+      console.error("Supabase error:", error);
+      setErrors({
+        rooftop: "We couldn't submit your enquiry. Please try again.",
+      });
       return;
     }
-    const next = validateStep(TOTAL_STEPS);
-    setErrors(next);
-    if (Object.keys(next).length > 0) return;
-    setSubmitting(true);
-    window.setTimeout(() => {
-      setSubmitting(false);
-      setDone(true);
-    }, 900);
+
+    console.log("Quote enquiry submitted:", data);
+    setDone(true);
+  } catch (error) {
+    console.error("Submission error:", error);
+    setErrors({
+      rooftop: "We couldn't submit your enquiry. Please try again.",
+    });
+  } finally {
+    setSubmitting(false);
   }
+}
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
