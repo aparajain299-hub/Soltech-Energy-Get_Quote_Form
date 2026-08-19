@@ -14,7 +14,10 @@ import {
   Sun,
   Zap,
 } from "lucide-react";
-import logo from "/soltech-logo.png";
+const logo = "/soltech-logo.png";
+<img
+  src={logo}
+  alt="Soltech Energy logo"
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -299,7 +302,7 @@ async function handleSubmit(e: React.FormEvent) {
                               setErrors((prev) => ({ ...prev, propertyType: undefined }));
                             }}
                             aria-pressed={active}
-                            className={`flex flex-col items-center justify-center gap-2 rounded-lg border-[1.5px] px-3 py-3.5 text-center text-xs font-semibold transition-all duration-300 ${
+                            className={`cursor-pointer flex flex-col items-center justify-center gap-2 rounded-lg border-[1.5px] px-3 py-3.5 text-center text-xs font-semibold transition-all duration-300 ${
                               active
                                 ? "-translate-y-0.5 border-primary bg-secondary text-primary-deep shadow-sun"
                                 : "border-input bg-card text-foreground hover:-translate-y-0.5 hover:border-primary/40 hover:bg-muted"
@@ -394,7 +397,7 @@ async function handleSubmit(e: React.FormEvent) {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="shine-sweep surface-hero flex h-13 w-full items-center justify-center gap-2 rounded-lg px-5 font-display text-base font-semibold text-primary-foreground shadow-premium transition-transform duration-300 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70"
+                  className="shine-sweep surface-hero flex h-13 w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-5 font-display text-base font-semibold text-primary-foreground shadow-premium transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.18)] hover:brightness-105 active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {submitting ? (
                     <>
