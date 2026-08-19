@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import {
   ArrowLeft,
@@ -14,10 +13,9 @@ import {
   Sun,
   Zap,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
 const logo = "/soltech-logo.png";
-<img
-  src={logo}
-  alt="Soltech Energy logo"
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,10 +26,14 @@ export const Route = createFileRoute("/")({
         content:
           "Answer a few quick questions and Soltech Energy sends you a personalised rooftop solar savings quote — free and fast.",
       },
-      { property: "og:title", content: "Get a Free Solar Quote | Soltech Energy" },
+      {
+        property: "og:title",
+        content: "Get a Free Solar Quote | Soltech Energy",
+      },
       {
         property: "og:description",
-        content: "Personalised rooftop solar quote in under a minute from Soltech Energy.",
+        content:
+          "Personalised rooftop solar quote in under a minute from Soltech Energy.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
