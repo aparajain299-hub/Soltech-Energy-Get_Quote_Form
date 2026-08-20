@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-const logo = "/soltech-logo.png";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -169,7 +169,7 @@ async function handleSubmit(e: React.FormEvent) {
             className="surface-sun absolute -right-14 -top-14 h-44 w-44 rounded-full opacity-25 blur-2xl animate-sun-spin"
           />
           <img
-            src={logo.url}
+            src="/soltech-logo.png"
             alt="Soltech Energy logo"
             className="relative mx-auto h-24 w-24 rounded-3xl bg-card p-2 shadow-sun"
           />
