@@ -11,6 +11,7 @@ import {
   Ruler,
   Store,
   Sun,
+  X,
   Zap,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -164,6 +165,15 @@ async function handleSubmit(e: React.FormEvent) {
       <section className="animate-rise w-full max-w-md overflow-hidden rounded-4xl border border-border/70 bg-card shadow-premium">
         {/* Header with gradient inside the card */}
         <div className="surface-hero relative px-6 pb-8 pt-8 text-center text-primary-foreground">
+          
+          <button type="button"
+            onClick={() => window.history.back()}
+            aria-label="Close"
+            className="absolute right-4 top-4 z-20 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground hover:shadow-md active:translate-y-0"
+            >
+            <X className="h-5 w-5" />
+          </button>
+          
           <div
             aria-hidden
             className="surface-sun absolute -right-14 -top-14 h-44 w-44 rounded-full opacity-25 blur-2xl animate-sun-spin"
@@ -199,7 +209,7 @@ async function handleSubmit(e: React.FormEvent) {
                 <CheckCircle2 className="h-9 w-9 text-accent-foreground" strokeWidth={2.2} />
               </span>
               <h2 className="mt-5 font-display text-xl font-semibold text-primary-deep">
-                Your quote is on the way
+                 Quote Request Submitted!              
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 Thanks {name.split(" ")[0]} — our solar advisor will reach you on WhatsApp shortly.
@@ -396,28 +406,30 @@ async function handleSubmit(e: React.FormEvent) {
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="shine-sweep surface-hero flex h-13 w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-5 font-display text-base font-semibold text-primary-foreground shadow-premium transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.18)] hover:brightness-105 active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {submitting ? (
-                    <>
-                      <Sun className="h-5 w-5 animate-sun-spin" />
-                      Sending…
-                    </>
-                  ) : step < TOTAL_STEPS ? (
-                    <>
-                      Continue
-                      <ArrowRight className="h-4.5 w-4.5 text-sun" strokeWidth={2.4} />
-                    </>
-                  ) : (
-                    <>
-                      Get my free quote
-                      <Zap className="h-4.5 w-4.5 text-sun" strokeWidth={2.4} />
-                    </>
-                  )}
-                </button>
+<button
+  type="submit"
+  disabled={submitting}
+  className="shine-sweep surface-hero flex h-13 w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-5 font-display text-base font-semibold text-primary-foreground shadow-premium transition-all duration-300 ease-out hover:-translate-y-1.5 hover:scale-[1.015] hover:brightness-105 hover:shadow-[0_14px_32px_rgba(0,0,0,0.20)] active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+>
+  {submitting ? (
+    <>
+      <Sun className="h-5 w-5 animate-sun-spin" />
+      Sending…
+    </>
+  ) : step < TOTAL_STEPS ? (
+    <>
+      Continue
+      <ArrowRight
+        className="h-4.5 w-4.5 text-sun"
+        strokeWidth={2.4}
+      />
+    </>
+  ) : (
+    <>
+      Get my free quote
+    </>
+  )}
+</button>
               </div>
             </form>
           )}
