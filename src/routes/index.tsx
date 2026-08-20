@@ -167,7 +167,7 @@ async function handleSubmit(e: React.FormEvent) {
         <div className="surface-hero relative px-6 pb-8 pt-8 text-center text-primary-foreground">
           
           <button type="button"
-            onClick={() => window.history.back()}
+            onClick={() => window.close()}
             aria-label="Close"
             className="absolute right-4 top-4 z-20 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground hover:shadow-md active:translate-y-0"
             >
