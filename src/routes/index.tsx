@@ -156,7 +156,16 @@ async function handleSubmit(e: React.FormEvent) {
 }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 via-sky-50 to-amber-100 px-4 py-10">
+    <main
+      className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10"
+      style={{
+        background: `
+        radial-gradient(circle at 0% 15%, rgba(125, 150, 215, 0.75) 0%, rgba(160, 185, 230, 0.55) 28%, transparent 55%),
+        radial-gradient(circle at 100% 80%, rgba(255, 207, 80, 0.75) 0%, rgba(247, 220, 150, 0.55) 30%, transparent 58%),
+        linear-gradient(135deg, #dbeafe 0%, #f0f9ff 48%, #fef3c7 100%)
+        `,
+      }}
+      >      
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -left-20 top-10 h-64 w-64 rounded-full bg-accent-soft opacity-70 blur-3xl animate-float-soft" />
         <div className="absolute -right-16 bottom-10 h-72 w-72 rounded-full bg-secondary opacity-80 blur-3xl animate-float-soft [animation-delay:2s]" />
