@@ -34,12 +34,12 @@ export function QuoteForm() {
     const search = citySearch.trim().toLowerCase();
 
     if (!search) {
-      return INDIAN_CITIES.slice(0, 50);
+      return INDIAN_CITIES;
     }
 
     return INDIAN_CITIES.filter((cityName) =>
       cityName.toLowerCase().includes(search)
-    ).slice(0, 50);
+    );
   }, [citySearch]);
 
   if (submittedName) {
@@ -192,7 +192,13 @@ export function QuoteForm() {
               autoComplete="name"
               placeholder="Enter your full name"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={(e) => {
+                setFullName(e.target.value);
+
+                if (errors.fullName) {
+                  setErrors(({ fullName: _error, ...rest }) => rest);
+                }
+              }}
               aria-invalid={!!errors.fullName}
               aria-describedby={
                 errors.fullName
@@ -230,7 +236,13 @@ export function QuoteForm() {
               maxLength={15}
               placeholder="Enter your WhatsApp number"
               value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
+              onChange={(e) => {
+                setWhatsapp(e.target.value);
+
+                if (errors.whatsapp) {
+                  setErrors(({ whatsapp: _error, ...rest }) => rest);
+                }
+              }}
               aria-invalid={!!errors.whatsapp}
               aria-describedby={
                 errors.whatsapp
@@ -276,7 +288,7 @@ export function QuoteForm() {
                 setCityOpen(true);
 
                 if (errors.city) {
-                  setErrors(({ city: _city, ...rest }) => rest);
+                  setErrors(({ city: _error, ...rest }) => rest);
                 }
               }}
               onBlur={() => {
@@ -295,36 +307,34 @@ export function QuoteForm() {
             />
 
             {cityOpen && (
-              <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
-                <div className="max-h-64 overflow-y-auto p-1">
-                  {filteredCities.length > 0 ? (
-                    filteredCities.map((cityName) => (
-                      <button
-                        key={cityName}
-                        type="button"
-                        className="flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm text-foreground transition-colors hover:bg-muted"
-                        onMouseDown={(event) => {
-                          event.preventDefault();
-                        }}
-                        onClick={() => {
-                          setCity(cityName);
-                          setCitySearch("");
-                          setCityOpen(false);
+              <div className="absolute left-0 right-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border border-border bg-card p-1 shadow-lg">
+                {filteredCities.length > 0 ? (
+                  filteredCities.map((cityName) => (
+                    <button
+                      key={cityName}
+                      type="button"
+                      className="flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                      onMouseDown={(event) => {
+                        event.preventDefault();
+                      }}
+                      onClick={() => {
+                        setCity(cityName);
+                        setCitySearch("");
+                        setCityOpen(false);
 
-                          setErrors(
-                            ({ city: _city, ...rest }) => rest
-                          );
-                        }}
-                      >
-                        {cityName}
-                      </button>
-                    ))
-                  ) : (
-                    <div className="px-3 py-3 text-sm text-muted-foreground">
-                      No city found.
-                    </div>
-                  )}
-                </div>
+                        setErrors(
+                          ({ city: _error, ...rest }) => rest
+                        );
+                      }}
+                    >
+                      {cityName}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-3 py-3 text-sm text-muted-foreground">
+                    No city found.
+                  </div>
+                )}
               </div>
             )}
 
@@ -346,7 +356,7 @@ export function QuoteForm() {
                 setBill(value);
 
                 setErrors(
-                  ({ bill: _bill, ...rest }) => rest
+                  ({ bill: _error, ...rest }) => rest
                 );
               }}
               invalid={!!errors.bill}
@@ -377,11 +387,15 @@ export function QuoteForm() {
               maxLength={6}
               placeholder="Enter your PIN code"
               value={pinCode}
-              onChange={(e) =>
+              onChange={(e) => {
                 setPinCode(
                   e.target.value.replace(/\D/g, "")
-                )
-              }
+                );
+
+                if (errors.pinCode) {
+                  setErrors(({ pinCode: _error, ...rest }) => rest);
+                }
+              }}
               aria-invalid={!!errors.pinCode}
               aria-describedby={
                 errors.pinCode
@@ -417,9 +431,7 @@ export function QuoteForm() {
             disabled={submitting}
             className="flex min-h-14 w-full items-center justify-center rounded-xl bg-primary text-base font-semibold text-primary-foreground shadow-soft transition-all hover:bg-primary-dark active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-70"
           >
-            {submitting
-              ? "Submitting..."
-              : "Get My Free Quote"}
+            {submitting ? "Submitting..." : "Get My Free Quote"}
           </button>
         </form>
       </div>
