@@ -1,27 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { BillSelect, type BillOption } from "@/components/BillSelect";
 import { QuoteHeader } from "@/components/SoltechHeader";
 import { SuccessScreen } from "@/components/SuccessScreen";
 import { supabase } from "@/integrations/supabase/client";
 import { INDIAN_CITIES } from "@/lib/indian-cities";
-import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-
 
 type Errors = {
   fullName?: string;
@@ -39,29 +22,45 @@ export function QuoteForm() {
   const [fullName, setFullName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [city, setCity] = useState("");
+  const [citySearch, setCitySearch] = useState("");
+  const [cityOpen, setCityOpen] = useState(false);
   const [bill, setBill] = useState("");
   const [pinCode, setPinCode] = useState("");
-  const [cityOpen, setCityOpen] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submittedName, setSubmittedName] = useState<string | null>(null);
 
-if (submittedName) {
-  return (
-    <SuccessScreen
-      name={submittedName}
-      onSubmitAgain={() => {
-        setSubmittedName(null);
-        setFullName("");
-        setWhatsapp("");
-        setCity("");
-        setBill("");
-        setPinCode("");
-        setErrors({});
-      }}
-    />
-  );
-}
+  const filteredCities = useMemo(() => {
+    const search = citySearch.trim().toLowerCase();
+
+    if (!search) {
+      return INDIAN_CITIES.slice(0, 50);
+    }
+
+    return INDIAN_CITIES.filter((cityName) =>
+      cityName.toLowerCase().includes(search)
+    ).slice(0, 50);
+  }, [citySearch]);
+
+  if (submittedName) {
+    return (
+      <SuccessScreen
+        name={submittedName}
+        onSubmitAgain={() => {
+          setSubmittedName(null);
+          setFullName("");
+          setWhatsapp("");
+          setCity("");
+          setCitySearch("");
+          setCityOpen(false);
+          setBill("");
+          setPinCode("");
+          setErrors({});
+        }}
+      />
+    );
+  }
+
   const validate = () => {
     const next: Errors = {};
 
@@ -78,10 +77,12 @@ if (submittedName) {
     } else if (!/^[6-9]\d{9}$/.test(digits)) {
       next.whatsapp = "Please enter a valid 10-digit mobile number.";
     }
-    
+
     if (!city) {
       next.city = "Please select your city.";
-    } else if (!INDIAN_CITIES.includes(city as (typeof INDIAN_CITIES)[number])) {
+    } else if (
+      !INDIAN_CITIES.includes(city as (typeof INDIAN_CITIES)[number])
+    ) {
       next.city = "Please select a valid city from the list.";
     }
 
@@ -166,8 +167,7 @@ if (submittedName) {
   };
 
   return (
-      <div className="w-full max-w-md">
-
+    <div className="w-full max-w-md">
       <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
         <QuoteHeader />
 
@@ -176,6 +176,7 @@ if (submittedName) {
           noValidate
           className="mt-7 space-y-5"
         >
+          {/* Full Name */}
           <div>
             <label
               htmlFor="fullName"
@@ -211,6 +212,7 @@ if (submittedName) {
             )}
           </div>
 
+          {/* WhatsApp */}
           <div>
             <label
               htmlFor="whatsapp"
@@ -248,86 +250,95 @@ if (submittedName) {
             )}
           </div>
 
-<div>
-  <label
-    htmlFor="city"
-    className="text-sm font-semibold text-foreground"
-  >
-    City
-  </label>
+          {/* City */}
+          <div className="relative">
+            <label
+              htmlFor="city"
+              className="text-sm font-semibold text-foreground"
+            >
+              City
+            </label>
 
-  <Popover open={cityOpen} onOpenChange={setCityOpen}>
-    <PopoverTrigger asChild>
-      <Button
-        id="city"
-        type="button"
-        variant="outline"
-        role="combobox"
-        aria-expanded={cityOpen}
-        aria-invalid={!!errors.city}
-        className={cn(
-          fieldClass,
-          "justify-between font-normal hover:bg-card"
-        )}
-      >
-        {city || "Select your city"}
-        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-      </Button>
-    </PopoverTrigger>
+            <input
+              id="city"
+              name="city"
+              type="text"
+              autoComplete="off"
+              placeholder="Search your city"
+              value={cityOpen ? citySearch : city}
+              onFocus={() => {
+                setCityOpen(true);
+                setCitySearch(city);
+              }}
+              onChange={(e) => {
+                setCitySearch(e.target.value);
+                setCity("");
+                setCityOpen(true);
 
-    <PopoverContent
-      className="w-[var(--radix-popover-trigger-width)] p-0"
-      align="start"
-    >
-      <Command>
-        <CommandInput placeholder="Search your city..." />
-
-        <CommandList>
-          <CommandEmpty>
-            No city found.
-          </CommandEmpty>
-
-          <CommandGroup>
-            {INDIAN_CITIES.map((cityName) => (
-              <CommandItem
-                key={cityName}
-                value={cityName}
-                onSelect={() => {
-                  setCity(cityName);
-                  setCityOpen(false);
-
+                if (errors.city) {
                   setErrors(({ city: _city, ...rest }) => rest);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    city === cityName
-                      ? "opacity-100"
-                      : "opacity-0"
+                }
+              }}
+              onBlur={() => {
+                setTimeout(() => {
+                  setCityOpen(false);
+                  setCitySearch("");
+                }, 150);
+              }}
+              aria-invalid={!!errors.city}
+              aria-describedby={
+                errors.city
+                  ? "city-error"
+                  : undefined
+              }
+              className={fieldClass}
+            />
+
+            {cityOpen && (
+              <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+                <div className="max-h-64 overflow-y-auto p-1">
+                  {filteredCities.length > 0 ? (
+                    filteredCities.map((cityName) => (
+                      <button
+                        key={cityName}
+                        type="button"
+                        className="flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm text-foreground transition-colors hover:bg-muted"
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                        }}
+                        onClick={() => {
+                          setCity(cityName);
+                          setCitySearch("");
+                          setCityOpen(false);
+
+                          setErrors(
+                            ({ city: _city, ...rest }) => rest
+                          );
+                        }}
+                      >
+                        {cityName}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-3 text-sm text-muted-foreground">
+                      No city found.
+                    </div>
                   )}
-                />
+                </div>
+              </div>
+            )}
 
-                {cityName}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
-      </Command>
-    </PopoverContent>
-  </Popover>
+            {errors.city && (
+              <p
+                id="city-error"
+                className="mt-1.5 text-sm text-destructive"
+              >
+                {errors.city}
+              </p>
+            )}
+          </div>
 
-  {errors.city && (
-    <p
-      id="city-error"
-      className="mt-1.5 text-sm text-destructive"
-    >
-      {errors.city}
-    </p>
-  )}
-</div>
-
-
+          {/* Electricity Bill */}
           <div>
             <BillSelect
               value={bill}
@@ -348,6 +359,7 @@ if (submittedName) {
             )}
           </div>
 
+          {/* PIN Code */}
           <div>
             <label
               htmlFor="pinCode"
@@ -389,6 +401,7 @@ if (submittedName) {
             )}
           </div>
 
+          {/* Form Error */}
           {errors.form && (
             <p
               role="alert"
@@ -398,6 +411,7 @@ if (submittedName) {
             </p>
           )}
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={submitting}
