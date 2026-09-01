@@ -38,9 +38,10 @@ const fieldClass =
 export function QuoteForm() {
   const [fullName, setFullName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [bill, setBill] = useState("");
   const [city, setCity] = useState("");
+  const [bill, setBill] = useState("");
   const [pinCode, setPinCode] = useState("");
+  const [cityOpen, setCityOpen] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submittedName, setSubmittedName] = useState<string | null>(null);
