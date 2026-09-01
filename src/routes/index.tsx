@@ -171,6 +171,7 @@ function QuotePage() {
         {
           p_full_name: name.trim(),
           p_whatsapp_number: digits,
+          p_city: city,
           p_monthly_electricity_bill: bill,
           p_pin_code: pin.trim(),
         }
