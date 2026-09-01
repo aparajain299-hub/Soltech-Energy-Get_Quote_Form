@@ -4,10 +4,29 @@ import { BillSelect, type BillOption } from "@/components/BillSelect";
 import { QuoteHeader } from "@/components/SoltechHeader";
 import { SuccessScreen } from "@/components/SuccessScreen";
 import { supabase } from "@/integrations/supabase/client";
+import { INDIAN_CITIES } from "@/lib/indian-cities";
+import { Check, ChevronsUpDown } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 
 type Errors = {
   fullName?: string;
   whatsapp?: string;
+  city?: string;
   bill?: string;
   pinCode?: string;
   form?: string;
@@ -20,6 +39,7 @@ export function QuoteForm() {
   const [fullName, setFullName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [bill, setBill] = useState("");
+  const [city, setCity] = useState("");
   const [pinCode, setPinCode] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -33,6 +53,7 @@ if (submittedName) {
         setSubmittedName(null);
         setFullName("");
         setWhatsapp("");
+        setCity("");
         setBill("");
         setPinCode("");
         setErrors({});
@@ -55,6 +76,12 @@ if (submittedName) {
       next.whatsapp = "Please enter your WhatsApp number.";
     } else if (!/^[6-9]\d{9}$/.test(digits)) {
       next.whatsapp = "Please enter a valid 10-digit mobile number.";
+    }
+    
+    if (!city) {
+      next.city = "Please select your city.";
+    } else if (!INDIAN_CITIES.includes(city as (typeof INDIAN_CITIES)[number])) {
+      next.city = "Please select a valid city from the list.";
     }
 
     if (!bill) {
@@ -219,6 +246,86 @@ if (submittedName) {
               </p>
             )}
           </div>
+
+<div>
+  <label
+    htmlFor="city"
+    className="text-sm font-semibold text-foreground"
+  >
+    City
+  </label>
+
+  <Popover open={cityOpen} onOpenChange={setCityOpen}>
+    <PopoverTrigger asChild>
+      <Button
+        id="city"
+        type="button"
+        variant="outline"
+        role="combobox"
+        aria-expanded={cityOpen}
+        aria-invalid={!!errors.city}
+        className={cn(
+          fieldClass,
+          "justify-between font-normal hover:bg-card"
+        )}
+      >
+        {city || "Select your city"}
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+    </PopoverTrigger>
+
+    <PopoverContent
+      className="w-[var(--radix-popover-trigger-width)] p-0"
+      align="start"
+    >
+      <Command>
+        <CommandInput placeholder="Search your city..." />
+
+        <CommandList>
+          <CommandEmpty>
+            No city found.
+          </CommandEmpty>
+
+          <CommandGroup>
+            {INDIAN_CITIES.map((cityName) => (
+              <CommandItem
+                key={cityName}
+                value={cityName}
+                onSelect={() => {
+                  setCity(cityName);
+                  setCityOpen(false);
+
+                  setErrors(({ city: _city, ...rest }) => rest);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    city === cityName
+                      ? "opacity-100"
+                      : "opacity-0"
+                  )}
+                />
+
+                {cityName}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </PopoverContent>
+  </Popover>
+
+  {errors.city && (
+    <p
+      id="city-error"
+      className="mt-1.5 text-sm text-destructive"
+    >
+      {errors.city}
+    </p>
+  )}
+</div>
+
 
           <div>
             <BillSelect
